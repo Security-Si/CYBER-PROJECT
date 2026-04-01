@@ -58,12 +58,12 @@
             <a class="nav__item {{ 'nav__item--active' if p.startswith('/courses') else '' }}" href="{{ url_for('main.courses') }}">Cours</a>
             <a class="nav__item {{ 'nav__item--active' if p.startswith('/messages') else '' }}" href="{{ url_for('main.messages') }}">Messages</a>
             <div class="nav__sep"></div>
-            <a class="nav__item nav__item--lab {{ 'nav__item--active' if p.startswith('/lab') else '' }}" href="{{ url_for('main.lab') }}">Security Lab</a>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/admin') else '' }}" href="{{ url_for('main.admin_users') }}">Admin</a>
           </nav>
           <div class="sidebar__hint">
             <div class="muted">Conseil</div>
             <div class="small">
-              Ouvre “Security Lab” pour la liste des failles attendues.
+              Pense à tester la version sécurisée en prod.
             </div>
           </div>
         </aside>

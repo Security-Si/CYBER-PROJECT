@@ -1,5 +1,4 @@
 import os
-import secrets
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -15,11 +14,7 @@ def create_app() -> Flask:
     config = AppConfig.from_env(os.environ)
     app = Flask(__name__, static_folder="static", template_folder="templates")
 
-    if config.secret_key:
-        app.secret_key = config.secret_key
-    else:
-        # En mode secure, forcer idéalement une clé stable via SECRET_KEY.
-        app.secret_key = secrets.token_hex(32)
+    app.secret_key = config.secret_key or os.environ.get("FALLBACK_SECRET_KEY") or "change-me-in-prod"
 
     app.config.update(
         APP_MODE=config.mode,

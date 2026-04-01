@@ -161,6 +161,4 @@ Ce document liste **20 failles** (niveau simple → moyen) groupées par catégo
 ---
 
 ## Annexes (références dans le projet)
-- Page “Security Lab” : `/lab`
 - Démo rapide : `docs/demo.md`
-

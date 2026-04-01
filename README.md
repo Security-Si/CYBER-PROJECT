@@ -59,7 +59,6 @@ Variables d’environnement Vercel recommandées :
 - `/agenda` : agenda + notes (XSS stockée en `vuln`)
 - `/courses` : liste cours + annonces
 - `/messages` : inbox (IDOR en `vuln` sur `/messages/<id>`)
-- `/lab` : liste des challenges / liens
 
 ## Scraping (optionnel, éthique)
 Un script est fourni pour **scraper** un Moodle public (respect `robots.txt`, délai entre requêtes).

@@ -297,13 +297,6 @@ def search():
         q_display = Markup(q)
     return render_template("search.html", q=q, q_display=q_display)
 
-
-@bp.get("/lab")
-@login_required
-def lab():
-    return render_template("lab.html")
-
-
 @bp.get("/admin/users")
 @login_required
 def admin_users():
