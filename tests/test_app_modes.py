@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from werkzeug.security import generate_password_hash
 
-from app import create_app
+from backend import create_app
 
 
 SCHEMA = """
