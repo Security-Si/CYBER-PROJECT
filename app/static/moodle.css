@@ -122,6 +122,14 @@ body {
   padding: 14px;
 }
 .nav { display: grid; gap: 8px; }
+.nav__group{
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 8px 10px 2px;
+}
 .nav__item {
   display: flex;
   align-items: center;
@@ -152,6 +160,14 @@ body {
 .card--flat { box-shadow: none; }
 .card__header { margin-bottom: 12px; }
 .card--auth, .card--info { max-width: 520px; }
+
+.header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.header__actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
 .h1 { margin: 0 0 6px; font-size: 22px; }
 .h2 { margin: 12px 0 8px; font-size: 16px; }
@@ -190,6 +206,8 @@ body {
 .btn--ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
 .btn--full { width: 100%; margin-top: 12px; }
 .btn:hover { filter: brightness(1.04); }
+
+.btn:active{ transform: translateY(1px); }
 
 .search { display: flex; width: 100%; gap: 8px; }
 .search__input { flex: 1; }

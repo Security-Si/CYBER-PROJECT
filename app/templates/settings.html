@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Settings — MoodleCloud{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="header">
+      <div>
+        <h1 class="h1">Settings</h1>
+        <p class="muted">Préférences et profil.</p>
+      </div>
+      <div class="header__actions">
+        {% if saved %}
+          <span class="badge badge--ok">Enregistré</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <form method="post" action="{{ url_for('main.settings') }}" class="grid2 mt16">
+      {% if APP_MODE=='secure' %}
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+      {% endif %}
+
+      <div class="card card--flat">
+        <h2 class="h2">Profil</h2>
+        <label class="label" for="display_name">Nom affiché</label>
+        <input class="input" id="display_name" name="display_name" value="{{ user.display_name }}" />
+
+        <label class="label" for="bio">Bio</label>
+        <textarea class="input" id="bio" name="bio" rows="6">{{ user.bio }}</textarea>
+      </div>
+
+      <div class="card card--flat">
+        <h2 class="h2">Préférences</h2>
+        <label class="label" for="timezone">Fuseau horaire</label>
+        <input class="input" id="timezone" name="timezone" placeholder="Europe/Paris" value="{{ session.get('pref_timezone','') }}" />
+
+        <label class="label" for="digest">Digest e‑mail</label>
+        <select class="input" id="digest" name="digest">
+          {% set d = session.get('pref_digest','off') %}
+          <option value="off" {{ 'selected' if d=='off' else '' }}>Désactivé</option>
+          <option value="daily" {{ 'selected' if d=='daily' else '' }}>Quotidien</option>
+          <option value="weekly" {{ 'selected' if d=='weekly' else '' }}>Hebdo</option>
+        </select>
+
+        <div class="hr"></div>
+        <button class="btn btn--full" type="submit">Enregistrer</button>
+      </div>
+    </form>
+
+    <div class="hr"></div>
+
+    <h2 class="h2">Aperçu (bio)</h2>
+    <div class="note__body">{{ bio }}</div>
+  </section>
+{% endblock %}
+

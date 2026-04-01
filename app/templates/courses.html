@@ -1,10 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Cours — Moodle{% endblock %}
+{% block title %}Courses — MoodleCloud{% endblock %}
 
 {% block content %}
   <section class="card">
-    <h1 class="h1">Cours</h1>
-    <p class="muted">Liste des cours auxquels vous êtes inscrit.</p>
+    <div class="header">
+      <div>
+        <h1 class="h1">Courses</h1>
+        <p class="muted">Liste des cours auxquels vous êtes inscrit.</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+      </div>
+    </div>
 
     <div class="listcard">
       {% for c in courses %}
@@ -19,4 +26,3 @@
     </div>
   </section>
 {% endblock %}
-

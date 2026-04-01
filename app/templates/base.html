@@ -9,11 +9,11 @@
   <body class="{{ 'layout-auth' if not session.get('user_id') else 'layout-app' }}">
     <header class="topbar">
       <div class="topbar__inner">
-        <a class="brand" href="{{ url_for('main.index') }}">
+        <a class="brand" href="{{ url_for('main.dashboard') if session.get('user_id') else url_for('main.index') }}">
           <div class="brand__logo">m</div>
           <div class="brand__text">
-            <div class="brand__name">Moodle</div>
-            <div class="brand__sub">Façade simplifiée (Cyber Challenge)</div>
+            <div class="brand__name">MoodleCloud</div>
+            <div class="brand__sub">Plateforme SaaS (démo)</div>
           </div>
         </a>
 
@@ -53,11 +53,16 @@
         <aside class="sidebar">
           <nav class="nav">
             {% set p = request.path %}
-            <a class="nav__item {{ 'nav__item--active' if p.startswith('/dashboard') else '' }}" href="{{ url_for('main.dashboard') }}">Tableau de bord</a>
-            <a class="nav__item {{ 'nav__item--active' if p.startswith('/agenda') else '' }}" href="{{ url_for('main.agenda') }}">Agenda</a>
-            <a class="nav__item {{ 'nav__item--active' if p.startswith('/courses') else '' }}" href="{{ url_for('main.courses') }}">Cours</a>
-            <a class="nav__item {{ 'nav__item--active' if p.startswith('/messages') else '' }}" href="{{ url_for('main.messages') }}">Messages</a>
+            <div class="nav__group">Workspace</div>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/dashboard') else '' }}" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/courses') else '' }}" href="{{ url_for('main.courses') }}">Courses</a>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/agenda') else '' }}" href="{{ url_for('main.agenda') }}">Calendar</a>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/messages') else '' }}" href="{{ url_for('main.messages') }}">Inbox</a>
             <div class="nav__sep"></div>
+            <div class="nav__group">Account</div>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/org') else '' }}" href="{{ url_for('main.org') }}">Organization</a>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/billing') else '' }}" href="{{ url_for('main.billing') }}">Billing</a>
+            <a class="nav__item {{ 'nav__item--active' if p.startswith('/settings') else '' }}" href="{{ url_for('main.settings') }}">Settings</a>
           </nav>
           <div class="sidebar__hint">
             <div class="muted">Conseil</div>

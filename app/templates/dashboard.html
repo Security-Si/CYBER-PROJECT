@@ -1,10 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Tableau de bord — Moodle{% endblock %}
+{% block title %}Dashboard — MoodleCloud{% endblock %}
 
 {% block content %}
   <section class="card">
-    <h1 class="h1">Tableau de bord</h1>
-    <p class="muted">Bienvenue, {{ session.get('display_name') or session.get('username') }}.</p>
+    <div class="header">
+      <div>
+        <h1 class="h1">Dashboard</h1>
+        <p class="muted">Bienvenue, {{ session.get('display_name') or session.get('username') }}.</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.org') }}">Organization</a>
+        <a class="btn" href="{{ url_for('main.settings') }}">Settings</a>
+      </div>
+    </div>
 
     <div class="kpi">
       <div class="kpi__item">
@@ -24,7 +32,7 @@
 
   <div class="grid2 mt16">
     <section class="card">
-      <h2 class="h2">Vos cours</h2>
+      <h2 class="h2">Courses</h2>
       <p class="muted">Accès rapide à vos espaces.</p>
       <div class="listcard">
         {% for c in courses %}
@@ -40,7 +48,7 @@
     </section>
 
     <section class="card">
-      <h2 class="h2">À venir</h2>
+      <h2 class="h2">Upcoming</h2>
       <p class="muted">Prochains créneaux agenda (données simulées).</p>
       <div class="listcard">
         {% for a in upcoming %}

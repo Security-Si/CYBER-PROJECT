@@ -1,4 +1,4 @@
-# Projet SSI — Cyber Challenge (Façade Moodle)
+# Projet SSI — Cyber Challenge (Façade Moodle / SaaS)
 
 Ce dépôt contient une mini “façade Moodle” avec **deux modes** :
 - `vuln` : volontairement vulnérable (XSS, auth faible, SQLi, open redirect).
@@ -55,10 +55,13 @@ Variables d’environnement Vercel recommandées :
 - `SECRET_KEY=...` (obligatoire en prod)
 
 ## Pages
-- `/dashboard` : tableau de bord
-- `/agenda` : agenda + notes (XSS stockée en `vuln`)
-- `/courses` : liste cours + annonces
+- `/dashboard` : dashboard (KPIs + accès rapide)
+- `/courses` : cours + annonces
+- `/agenda` : calendar + notes (XSS stockée en `vuln`)
 - `/messages` : inbox (IDOR en `vuln` sur `/messages/<id>`)
+- `/org` : organization (démo)
+- `/billing` : billing (démo)
+- `/settings` : settings (démo)
 
 ## Scraping (optionnel, éthique)
 Un script est fourni pour **scraper** un Moodle public (respect `robots.txt`, délai entre requêtes).

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Agenda — Moodle{% endblock %}
+{% block title %}Calendar — MoodleCloud{% endblock %}
 
 {% block content %}
   <div class="split">
     <section class="card">
-      <h1 class="h1">Agenda de cours</h1>
+      <h1 class="h1">Calendar</h1>
       <p class="muted">Planning simplifié (données simulées).</p>
 
       <div class="table">
@@ -29,7 +29,7 @@
     </section>
 
     <section class="card">
-      <h2 class="h2">Notes personnelles</h2>
+      <h2 class="h2">Notes</h2>
       <p class="muted">Ajoutez une note (visible uniquement par votre compte).</p>
 
       <form method="post" action="{{ url_for('main.agenda') }}">
@@ -64,4 +64,3 @@
     </section>
   </div>
 {% endblock %}
-

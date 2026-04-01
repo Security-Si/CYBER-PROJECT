@@ -297,6 +297,65 @@ def search():
         q_display = Markup(q)
     return render_template("search.html", q=q, q_display=q_display)
 
+
+@bp.get("/org")
+@login_required
+def org():
+    return render_template("org.html")
+
+
+@bp.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    db = get_db()
+    user_id = int(session["user_id"])
+    saved = False
+
+    if request.method == "POST":
+        # Paramètres UI (démo): stockés en session.
+        tz = (request.form.get("timezone") or "").strip()
+        digest = (request.form.get("digest") or "off").strip()
+        if is_secure_mode():
+            if tz and len(tz) > 64:
+                abort(400)
+        session["pref_timezone"] = tz
+        session["pref_digest"] = digest
+        saved = True
+
+        # Paramètres profil (réutilise la table users, sans changer le flow existant).
+        display_name = (request.form.get("display_name") or "").strip()
+        bio = request.form.get("bio") or ""
+        if display_name or bio:
+            if is_secure_mode():
+                if display_name and len(display_name) > 40:
+                    abort(400)
+                if len(bio) > 800:
+                    abort(400)
+            db.execute(
+                "UPDATE users SET display_name = COALESCE(NULLIF(?, ''), display_name), bio = COALESCE(?, bio) WHERE id = ?",
+                (display_name, bio, user_id),
+            )
+            db.commit()
+            if display_name:
+                session["display_name"] = display_name
+
+    user = db.execute(
+        "SELECT username, role, display_name, bio FROM users WHERE id = ?",
+        (user_id,),
+    ).fetchone()
+
+    bio = user["bio"]
+    if not is_secure_mode():
+        bio = Markup(bio)
+
+    return render_template("settings.html", user=user, bio=bio, saved=saved)
+
+
+@bp.get("/billing")
+@login_required
+def billing():
+    return render_template("billing.html")
+
 @bp.get("/admin/users")
 @login_required
 def admin_users():

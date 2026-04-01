@@ -3,8 +3,15 @@
 
 {% block content %}
   <section class="card">
-    <h1 class="h1">{{ course.code }} — {{ course.title }}</h1>
-    <p class="muted">Enseignant : {{ course.teacher }}</p>
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ course.code }} — {{ course.title }}</h1>
+        <p class="muted">Enseignant : {{ course.teacher }}</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.courses') }}">Retour</a>
+      </div>
+    </div>
     <p class="small">{{ course.summary }}</p>
   </section>
 

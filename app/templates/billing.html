@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Billing — MoodleCloud{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="header">
+      <div>
+        <h1 class="h1">Billing</h1>
+        <p class="muted">Page de facturation (démo — pas de paiement réel).</p>
+      </div>
+      <div class="header__actions">
+        <button class="btn btn--ghost" type="button">Télécharger facture</button>
+        <button class="btn" type="button">Mettre à jour le plan</button>
+      </div>
+    </div>
+
+    <div class="grid2 mt16">
+      <div class="card card--flat">
+        <div class="kpi__label">Plan</div>
+        <div class="kpi__value">Pro</div>
+        <div class="small">Renouvellement : 2026‑05‑01</div>
+      </div>
+      <div class="card card--flat">
+        <div class="kpi__label">Moyen de paiement</div>
+        <div class="kpi__value">•••• 4242</div>
+        <div class="small">Visa · Exp. 12/28</div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2 class="h2">Historique</h2>
+    <div class="table mt14">
+      <div class="table__row table__head">
+        <div>Date</div>
+        <div>Montant</div>
+        <div>Statut</div>
+      </div>
+      <div class="table__row">
+        <div class="mono">2026‑04‑01</div>
+        <div class="mono">€19</div>
+        <div class="mono">paid</div>
+      </div>
+      <div class="table__row">
+        <div class="mono">2026‑03‑01</div>
+        <div class="mono">€19</div>
+        <div class="mono">paid</div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+

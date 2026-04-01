@@ -1,10 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Messages — Moodle{% endblock %}
+{% block title %}Inbox — MoodleCloud{% endblock %}
 
 {% block content %}
   <section class="card">
-    <h1 class="h1">Messages</h1>
-    <p class="muted">Boîte de réception (démo).</p>
+    <div class="header">
+      <div>
+        <h1 class="h1">Inbox</h1>
+        <p class="muted">Boîte de réception (démo).</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.search', q='invoice') }}">Rechercher</a>
+      </div>
+    </div>
 
     <div class="listcard">
       {% for m in messages %}
@@ -19,4 +26,3 @@
     </div>
   </section>
 {% endblock %}
-

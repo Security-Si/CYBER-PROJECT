@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Organization — MoodleCloud{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="header">
+      <div>
+        <h1 class="h1">Organization</h1>
+        <p class="muted">Espace d’équipe (démo).</p>
+      </div>
+      <div class="header__actions">
+        <button class="btn btn--ghost" type="button">Inviter</button>
+        <button class="btn" type="button">Nouvelle équipe</button>
+      </div>
+    </div>
+
+    <div class="grid3 mt16">
+      <div class="card card--flat">
+        <div class="kpi__label">Plan</div>
+        <div class="kpi__value">Pro</div>
+        <div class="small">Facturation mensuelle · 2 membres</div>
+      </div>
+      <div class="card card--flat">
+        <div class="kpi__label">Sécurité</div>
+        <div class="kpi__value">{{ 'Durci' if APP_MODE=='secure' else 'Basique' }}</div>
+        <div class="small">Headers / CSRF / rate-limit selon mode</div>
+      </div>
+      <div class="card card--flat">
+        <div class="kpi__label">Rôle</div>
+        <div class="kpi__value">{{ session.get('role') or 'user' }}</div>
+        <div class="small">Gestion RBAC simplifiée</div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2 class="h2">Membres</h2>
+    <div class="table mt14">
+      <div class="table__row table__head">
+        <div>Nom</div>
+        <div>Rôle</div>
+        <div>Statut</div>
+      </div>
+      <div class="table__row">
+        <div class="strong">{{ session.get('display_name') or session.get('username') }}</div>
+        <div class="mono">{{ session.get('role') }}</div>
+        <div class="mono">active</div>
+      </div>
+      <div class="table__row">
+        <div class="strong">Keis Aissaoui</div>
+        <div class="mono">owner</div>
+        <div class="mono">active</div>
+      </div>
+      <div class="table__row">
+        <div class="strong">Tristan Hardouin</div>
+        <div class="mono">member</div>
+        <div class="mono">active</div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
