@@ -6,5 +6,7 @@ instance/
 scraped/
 .env
 .DS_Store
+.next/
+node_modules/
 
 .vercel

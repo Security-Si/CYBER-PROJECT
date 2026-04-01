@@ -1,18 +1,36 @@
-# Projet SSI — Cyber Challenge (Façade Moodle / SaaS)
+# Cyber Project — Next.js SaaS + Backend Flask
 
-Ce dépôt contient une mini “façade Moodle” avec **deux modes** :
+Ce dépôt contient :
+- Un **frontend SaaS moderne Next.js** (landing, pricing, login)
+- Un **backend Flask** (workspace + modes `vuln`/`secure`)
+
+## Frontend (Next.js)
+```bash
+npm i
+npm run dev
+```
+Ouvrir `http://localhost:3000`.
+
+## Backend (Flask)
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/init_db.py
+APP_MODE=vuln python run.py
+```
+Ouvrir `http://127.0.0.1:5000`.
+
+## Modes
+Le backend contient **deux modes** :
 - `vuln` : volontairement vulnérable (XSS, auth faible, SQLi, open redirect).
 - `secure` : corrections et contre-mesures (validation/échappement, requêtes paramétrées, hash MDp, CSRF, rate‑limit basique).
 
 ## Prérequis
 - Python 3.9+
 
-## Installation
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+## Déploiement (Vercel)
+Déployer le **frontend Next.js** directement sur Vercel (détection automatique).
 
 ## Initialiser la base
 ```bash
