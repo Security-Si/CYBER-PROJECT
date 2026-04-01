@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Profil — Moodle{% endblock %}
+
+{% block content %}
+  <div class="grid2">
+    <section class="card">
+      <h1 class="h1">Profil</h1>
+      <p class="muted">@{{ user.username }} — rôle: <code>{{ user.role }}</code></p>
+
+      <div class="hr"></div>
+
+      <h2 class="h2">Bio</h2>
+      <div class="note__body">{{ bio }}</div>
+    </section>
+
+    <section class="card">
+      <h2 class="h2">Modifier</h2>
+      <p class="muted">Mettre à jour l’affichage (démo).</p>
+
+      <form method="post" action="{{ url_for('main.profile') }}">
+        {% if APP_MODE=='secure' %}
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+        {% endif %}
+
+        <label class="label" for="display_name">Nom affiché</label>
+        <input class="input" id="display_name" name="display_name" value="{{ user.display_name }}" />
+
+        <label class="label" for="bio">Bio</label>
+        <textarea class="input" id="bio" name="bio" rows="6">{{ user.bio }}</textarea>
+
+        <button class="btn btn--full" type="submit">Enregistrer</button>
+      </form>
+    </section>
+  </div>
+{% endblock %}
+

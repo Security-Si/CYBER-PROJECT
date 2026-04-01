@@ -1,0 +1,11 @@
+{
+  "name": "project-ssi",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Projet SSI — Façade Moodle (Cyber Challenge)",
+  "scripts": {
+    "vercel": "vercel",
+    "deploy": "vercel --prod"
+  }
+}
+

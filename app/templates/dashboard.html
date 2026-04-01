@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — Moodle{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="h1">Tableau de bord</h1>
+    <p class="muted">Bienvenue, {{ session.get('display_name') or session.get('username') }}.</p>
+
+    <div class="kpi">
+      <div class="kpi__item">
+        <div class="kpi__label">Cours</div>
+        <div class="kpi__value">{{ stats.courses }}</div>
+      </div>
+      <div class="kpi__item">
+        <div class="kpi__label">Messages</div>
+        <div class="kpi__value">{{ stats.messages }}</div>
+      </div>
+      <div class="kpi__item">
+        <div class="kpi__label">Notes</div>
+        <div class="kpi__value">{{ stats.notes }}</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid2 mt16">
+    <section class="card">
+      <h2 class="h2">Vos cours</h2>
+      <p class="muted">Accès rapide à vos espaces.</p>
+      <div class="listcard">
+        {% for c in courses %}
+          <a class="item" href="{{ url_for('main.course_detail', course_id=c.id) }}">
+            <div>
+              <div class="item__title">{{ c.code }} — {{ c.title }}</div>
+              <div class="item__meta">{{ c.teacher }}</div>
+            </div>
+            <div class="item__right">Ouvrir →</div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="h2">À venir</h2>
+      <p class="muted">Prochains créneaux agenda (données simulées).</p>
+      <div class="listcard">
+        {% for a in upcoming %}
+          <div class="item">
+            <div>
+              <div class="item__title">{{ a.title }}</div>
+              <div class="item__meta">{{ a.start_time }} → {{ a.end_time }}</div>
+            </div>
+            <div class="item__right">{{ a.location }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+{% endblock %}

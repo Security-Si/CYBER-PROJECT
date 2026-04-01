@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Messages — Moodle{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="h1">Messages</h1>
+    <p class="muted">Boîte de réception (démo).</p>
+
+    <div class="listcard">
+      {% for m in messages %}
+        <a class="item" href="{{ url_for('main.message_detail', message_id=m.id) }}">
+          <div>
+            <div class="item__title">{{ m.subject }}</div>
+            <div class="item__meta">{{ m.created_at }} — {{ m.sender }}</div>
+          </div>
+          <div class="item__right">Ouvrir →</div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ course.code }} — Moodle{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="h1">{{ course.code }} — {{ course.title }}</h1>
+    <p class="muted">Enseignant : {{ course.teacher }}</p>
+    <p class="small">{{ course.summary }}</p>
+  </section>
+
+  <section class="card mt16">
+    <h2 class="h2">Annonces</h2>
+    <p class="muted">Fil d’annonces simplifié.</p>
+    {% if announcements %}
+      <div class="notes">
+        {% for a in announcements %}
+          <article class="note">
+            <div class="note__meta mono">{{ a.created_at }}</div>
+            <div class="note__title">{{ a.title }}</div>
+            <div class="note__body">{{ a.body }}</div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">Aucune annonce.</p>
+    {% endif %}
+  </section>
+{% endblock %}

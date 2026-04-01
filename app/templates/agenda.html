@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Agenda — Moodle{% endblock %}
+
+{% block content %}
+  <div class="split">
+    <section class="card">
+      <h1 class="h1">Agenda de cours</h1>
+      <p class="muted">Planning simplifié (données simulées).</p>
+
+      <div class="table">
+        <div class="table__row table__head">
+          <div>Date</div>
+          <div>Cours</div>
+          <div>Salle</div>
+        </div>
+        {% for it in items %}
+          <div class="table__row">
+            <div class="mono">
+              {{ it['start_time'] }} → {{ it['end_time'] }}
+            </div>
+            <div>
+              <div class="strong">{{ it['title'] }}</div>
+              <div class="muted">{{ it['description'] }}</div>
+            </div>
+            <div class="mono">{{ it['location'] }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="h2">Notes personnelles</h2>
+      <p class="muted">Ajoutez une note (visible uniquement par votre compte).</p>
+
+      <form method="post" action="{{ url_for('main.agenda') }}">
+        {% if APP_MODE=='secure' %}
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+        {% endif %}
+
+        <label class="label" for="title">Titre</label>
+        <input class="input" id="title" name="title" placeholder="Ex: Devoir maison — crypto" />
+
+        <label class="label" for="note">Contenu</label>
+        <textarea class="input" id="note" name="note" rows="4" placeholder="Votre note..."></textarea>
+
+        <button class="btn" type="submit">Ajouter</button>
+      </form>
+
+      <div class="hr"></div>
+
+      {% if notes %}
+        <div class="notes">
+          {% for n in notes %}
+            <article class="note">
+              <div class="note__meta mono">{{ n.created_at }}</div>
+              <div class="note__title">{{ n.title }}</div>
+              <div class="note__body">{{ n.body }}</div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">Aucune note pour le moment.</p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}
+

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Message — Moodle{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="h1">{{ msg.subject }}</h1>
+    <p class="muted">{{ msg.sender }} — <span class="mono">{{ msg.created_at }}</span></p>
+
+    <div class="codebox">
+      <div class="codebox__head">
+        <div class="codebox__title">Contenu</div>
+        <button class="btn btn--ghost" type="button" data-copy="#msgBody">Copier</button>
+      </div>
+      <pre id="msgBody">{{ msg.body }}</pre>
+    </div>
+  </section>
+{% endblock %}
+

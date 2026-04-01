@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Cours — Moodle{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="h1">Cours</h1>
+    <p class="muted">Liste des cours auxquels vous êtes inscrit.</p>
+
+    <div class="listcard">
+      {% for c in courses %}
+        <a class="item" href="{{ url_for('main.course_detail', course_id=c.id) }}">
+          <div>
+            <div class="item__title">{{ c.code }} — {{ c.title }}</div>
+            <div class="item__meta">{{ c.teacher }}</div>
+          </div>
+          <div class="item__right">{{ c.summary }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+

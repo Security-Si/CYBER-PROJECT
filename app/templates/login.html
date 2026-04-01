@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Connexion — Moodle{% endblock %}
+
+{% block content %}
+  <div class="auth">
+    <section class="card card--auth">
+      <div class="card__header">
+        <h1 class="h1">Connexion</h1>
+        <p class="muted">Façade Moodle simplifiée (démo SSI).</p>
+      </div>
+
+      {% if error %}
+        <div class="alert alert--danger">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('main.login', next=request.args.get('next')) }}">
+        {% if APP_MODE=='secure' %}
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+        {% endif %}
+
+        {% if APP_MODE=='vuln' %}
+          <!--
+            Comptes de test :
+            - student / password123
+            - teacher / Password!2026
+          -->
+        {% endif %}
+
+        <label class="label" for="username">Nom d’utilisateur</label>
+        <input class="input" id="username" name="username" autocomplete="username" />
+
+        <label class="label" for="password">Mot de passe</label>
+        <input class="input" id="password" name="password" type="password" autocomplete="current-password" />
+
+        <button class="btn btn--full" type="submit">Se connecter</button>
+      </form>
+    </section>
+
+    <section class="card card--info">
+      <h2 class="h2">Cyber Challenge</h2>
+      <p class="muted">
+        En <strong>mode vulnérable</strong>, l’application contient des failles (volontaires) pour l’exercice.
+        En <strong>mode sécurisé</strong>, les contre‑mesures sont activées.
+      </p>
+      <div class="pillrow">
+        <span class="pill">Login</span>
+        <span class="pill">Agenda</span>
+        <span class="pill">Cours</span>
+        <span class="pill">Messages</span>
+        <span class="pill pill--lab">Lab</span>
+      </div>
+    </section>
+  </div>
+{% endblock %}
