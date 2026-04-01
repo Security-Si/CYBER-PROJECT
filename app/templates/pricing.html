@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Pricing — MoodleCloud{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="header">
+      <div>
+        <h1 class="h1">Pricing</h1>
+        <p class="muted">Des plans simples pour démarrer rapidement.</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.features') }}">Features</a>
+        <a class="btn" href="{{ url_for('main.login') }}">Get started</a>
+      </div>
+    </div>
+
+    <div class="grid3 mt16">
+      <div class="card card--flat">
+        <div class="strong">Starter</div>
+        <div class="kpi__value">€0</div>
+        <div class="small">Pour tester la plateforme.</div>
+        <div class="hr"></div>
+        <ul class="list">
+          <li>1 workspace</li>
+          <li>Courses + Calendar</li>
+          <li>Support communautaire</li>
+        </ul>
+      </div>
+
+      <div class="card card--flat">
+        <div class="strong">Pro</div>
+        <div class="kpi__value">€19</div>
+        <div class="small">Le plan recommandé.</div>
+        <div class="hr"></div>
+        <ul class="list">
+          <li>Organization</li>
+          <li>Inbox + search</li>
+          <li>Billing & invoices (démo)</li>
+        </ul>
+      </div>
+
+      <div class="card card--flat">
+        <div class="strong">Enterprise</div>
+        <div class="kpi__value">Sur devis</div>
+        <div class="small">Pour écoles et grands comptes.</div>
+        <div class="hr"></div>
+        <ul class="list">
+          <li>SSO (démo)</li>
+          <li>Audit & conformité</li>
+          <li>SLA</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+

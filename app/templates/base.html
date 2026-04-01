@@ -23,6 +23,12 @@
               <input class="input search__input" name="q" placeholder="Rechercher (démo)…" />
               <button class="search__btn" type="submit">⌕</button>
             </form>
+          {% else %}
+            <nav class="topnav">
+              <a class="topnav__item" href="{{ url_for('main.features') }}">Features</a>
+              <a class="topnav__item" href="{{ url_for('main.pricing') }}">Pricing</a>
+              <a class="topnav__item" href="{{ url_for('main.terms') }}">Terms</a>
+            </nav>
           {% endif %}
         </div>
 
@@ -43,6 +49,11 @@
               {% if APP_MODE=='secure' %}<input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>{% endif %}
               <button class="btn" type="submit">Déconnexion</button>
             </form>
+          {% endif %}
+
+          {% if not session.get('user_id') %}
+            <a class="btn btn--ghost" href="{{ url_for('main.login') }}">Log in</a>
+            <a class="btn" href="{{ url_for('main.login', next='/dashboard') }}">Get started</a>
           {% endif %}
         </div>
       </div>
@@ -76,6 +87,17 @@
       <main class="main">
         <div class="container">
           {% block content %}{% endblock %}
+          {% if not session.get('user_id') %}
+            <footer class="footer">
+              <div class="footer__inner">
+                <div class="small muted">© 2026 MoodleCloud. Demo project.</div>
+                <div class="footer__links">
+                  <a class="link" href="{{ url_for('main.privacy') }}">Privacy</a>
+                  <a class="link" href="{{ url_for('main.terms') }}">Terms</a>
+                </div>
+              </div>
+            </footer>
+          {% endif %}
         </div>
       </main>
     </div>

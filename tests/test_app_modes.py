@@ -138,6 +138,16 @@ def test_secure_blocks_open_redirect_and_requires_csrf(app_tmp):
         assert r.headers["Location"] == "/dashboard"
 
 
+def test_public_landing(app_tmp):
+    os.environ["APP_MODE"] = "secure"
+    app = create_app()
+    app.testing = True
+    with app.test_client() as c:
+        r = c.get("/")
+        assert r.status_code == 200
+        assert b"Pricing" in r.data
+
+
 def test_xss_stored_vuln_vs_secure(app_tmp):
     payload = '<img src=x onerror="alert(1)">'
 

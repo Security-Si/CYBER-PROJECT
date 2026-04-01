@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Features — MoodleCloud{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="header">
+      <div>
+        <h1 class="h1">Features</h1>
+        <p class="muted">Fonctionnalités clés de la plateforme.</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.pricing') }}">Pricing</a>
+        <a class="btn" href="{{ url_for('main.login') }}">Log in</a>
+      </div>
+    </div>
+
+    <div class="grid3 mt16">
+      <div class="card card--flat">
+        <div class="strong">Dashboard</div>
+        <div class="small">KPIs, raccourcis, prochains événements.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="strong">Courses</div>
+        <div class="small">Liste de cours + annonces, navigation rapide.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="strong">Calendar</div>
+        <div class="small">Agenda + notes personnelles par utilisateur.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="strong">Inbox</div>
+        <div class="small">Messages et détails, expérience type SaaS.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="strong">Organization</div>
+        <div class="small">Espace équipe et rôles (simplifié).</div>
+      </div>
+      <div class="card card--flat">
+        <div class="strong">Billing</div>
+        <div class="small">Plans, factures (démo).</div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+

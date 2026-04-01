@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}MoodleCloud — SaaS LMS{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="header">
+      <div>
+        <h1 class="h1">Un LMS SaaS moderne pour vos cours</h1>
+        <p class="muted">Dashboard, cours, calendrier, inbox, organisation et facturation — le tout en une seule plateforme.</p>
+      </div>
+      <div class="header__actions">
+        <a class="btn btn--ghost" href="{{ url_for('main.pricing') }}">Voir les plans</a>
+        <a class="btn" href="{{ url_for('main.login') }}">Se connecter</a>
+      </div>
+    </div>
+
+    <div class="grid3 mt16">
+      <div class="card card--flat">
+        <div class="kpi__label">Productivité</div>
+        <div class="kpi__value">+1</div>
+        <div class="small">Espace unique pour cours, annonces, agenda et notes.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="kpi__label">SaaS</div>
+        <div class="kpi__value">Cloud</div>
+        <div class="small">Expérience “produit” : navigation, settings, billing.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="kpi__label">Sécurité</div>
+        <div class="kpi__value">{{ 'Secure' if APP_MODE=='secure' else 'Vuln' }}</div>
+        <div class="small">Mode sécurisé disponible pour la mise en production.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card mt16">
+    <h2 class="h2">Ce que vous obtenez</h2>
+    <div class="grid2 mt16">
+      <div class="card card--flat">
+        <div class="strong">Workspace</div>
+        <div class="small">Courses, Calendar, Inbox, Notes, Search.</div>
+      </div>
+      <div class="card card--flat">
+        <div class="strong">Account</div>
+        <div class="small">Organization, Billing, Settings, profil.</div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+

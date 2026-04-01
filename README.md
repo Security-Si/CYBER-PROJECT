@@ -55,6 +55,9 @@ Variables d’environnement Vercel recommandées :
 - `SECRET_KEY=...` (obligatoire en prod)
 
 ## Pages
+- `/` : landing page (marketing)
+- `/pricing` : plans
+- `/features` : fonctionnalités
 - `/dashboard` : dashboard (KPIs + accès rapide)
 - `/courses` : cours + annonces
 - `/agenda` : calendar + notes (XSS stockée en `vuln`)

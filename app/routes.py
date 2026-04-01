@@ -47,7 +47,31 @@ def inject_globals():
 def index():
     if session.get("user_id"):
         return redirect(url_for("main.dashboard"))
-    return redirect(url_for("main.login"))
+    return render_template("landing.html")
+
+
+@bp.get("/features")
+def features():
+    if session.get("user_id"):
+        return redirect(url_for("main.dashboard"))
+    return render_template("features.html")
+
+
+@bp.get("/pricing")
+def pricing():
+    if session.get("user_id"):
+        return redirect(url_for("main.dashboard"))
+    return render_template("pricing.html")
+
+
+@bp.get("/legal/terms")
+def terms():
+    return render_template("terms.html")
+
+
+@bp.get("/legal/privacy")
+def privacy():
+    return render_template("privacy.html")
 
 
 @bp.route("/login", methods=["GET", "POST"])
