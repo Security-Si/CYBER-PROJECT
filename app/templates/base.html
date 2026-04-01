@@ -58,7 +58,6 @@
             <a class="nav__item {{ 'nav__item--active' if p.startswith('/courses') else '' }}" href="{{ url_for('main.courses') }}">Cours</a>
             <a class="nav__item {{ 'nav__item--active' if p.startswith('/messages') else '' }}" href="{{ url_for('main.messages') }}">Messages</a>
             <div class="nav__sep"></div>
-            <a class="nav__item {{ 'nav__item--active' if p.startswith('/admin') else '' }}" href="{{ url_for('main.admin_users') }}">Admin</a>
           </nav>
           <div class="sidebar__hint">
             <div class="muted">Conseil</div>
