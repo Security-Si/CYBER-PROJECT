@@ -1,132 +1,110 @@
-# Rapport Red Team — Pentest (mode vuln)
+# Rapport Red Team — Pentest (mode vuln) (1ère personne)
 
 Auteur (Red Team) : **Keis Aissaoui**  
 Projet : **Cyber Challenge — Façade Moodle / SaaS** (SSI 2025–2026)  
+Âge / profil : **22 ans**, débutant en pentest (j’apprends en faisant)  
 Équipe : Keis Aissaoui • Tristan Hardouin  
 À compléter : filière / école / année universitaire.
 
-## 0) Résumé exécutif
-Le pentest vise à identifier des vulnérabilités web classiques sur le **mode `APP_MODE=vuln`** et à fournir :
-- des preuves de concept (PoC) reproductibles ;
-- une estimation d’impact ;
-- des recommandations de remédiation.
+## 0) Comment j’ai abordé le test (en mode étudiant)
+Je ne suis pas pentester pro, donc j’ai fait “simple mais efficace” :
+- je navigue comme un utilisateur normal ;
+- j’ouvre DevTools (Network / Storage) ;
+- je teste les trucs classiques : paramètres, formulaires, IDs dans l’URL ;
+- je note ce qui marche, et j’écris un PoC facile à rejouer.
 
-Les vulnérabilités attendues sont listées dans `docs/vulnerabilites.md`. Ce rapport documente celles qui sont exploitables et comment les trouver “de l’extérieur”.
+Je me suis basé sur `docs/vulnerabilites.md` pour avoir une liste claire des failles à chercher.
 
-## 1) Portée et méthodologie
-### 1.1 Portée
-- Application web locale (ou déployée) — pages : `/login`, `/dashboard`, `/courses`, `/agenda`, `/messages`, `/profile`, `/search`.
-- Endpoints sensibles : `/admin/users`, `/api/users`.
+## 1) Reconnaissance (ce que j’ai vu rapidement)
+### 1.1 Pages visibles
+Je vois surtout :
+- `/login` (formulaire),
+- `/dashboard` (après login),
+- `/courses`, `/agenda`, `/messages`, `/profile`, `/search`.
 
-### 1.2 Méthodologie (pragmatique)
-1) Reconnaissance : navigation + DevTools (Network/Storage), endpoints évidents, paramètres.
-2) Tests rapides : injections, XSS, contrôles d’accès, CSRF, redirections.
-3) Exploitation : PoC minimal + observation d’impact.
-4) Recommandations : fix “root cause” + défense en profondeur.
+### 1.2 Indices “de l’extérieur”
+Ce que je vérifie direct :
+- Est‑ce que l’app réaffiche ce que je tape (souvent XSS) ?
+- Est‑ce qu’il y a des IDs dans l’URL (souvent IDOR) ?
+- Est‑ce qu’il y a un paramètre `next` au login (souvent open redirect) ?
+- Est‑ce qu’il y a des endpoints admin/api devinables (`/admin`, `/api`) ?
 
-## 2) Reconnaissance (observations)
-### 2.1 Surfaces d’attaque
-- Formulaires : login (`/login`), notes (`/agenda`), profil (`/profile`).
-- Paramètres : `next` (login), `q` (search), IDs dans les URLs (`/messages/<id>`, `/courses/<id>`).
-- Pages “administration” non listées dans la navbar (mais devinables) : `/admin/users`, `/api/users`.
+## 2) Vulnérabilités que j’ai réussies à exploiter (PoC)
+> Tous les PoC ci‑dessous sont pour l’app de démo uniquement.
 
-### 2.2 Indices externes utiles
-- Cookies session présents après login.
-- Réponses HTML réaffichant des entrées utilisateur (notes/bio/search).
-- Endpoints JSON (`/api/users`) faciles à tester.
-
-## 3) Vulnérabilités confirmées (avec PoC)
-
-> Convention : les PoC ci-dessous sont à lancer **uniquement** contre cette application de démo.
-
-### VULN‑01 — SQL Injection (bypass login)
-- **Référence checklist** : (1)
-- **Endpoint** : `POST /login`
-- **Impact** : accès au workspace sans mot de passe, élévation de privilèges possible selon la première ligne retournée.
+### 2.1 SQLi login (bypass)
+- **Je l’ai trouvé comment** : sur un login je tente des strings SQL classiques.
+- **Où** : `POST /login` (mode `vuln`)
 - **PoC** :
-  - Username : `x' OR 1=1 -- `
-  - Password : `x`
-- **Résultat observé** : redirection vers `/dashboard`.
-- **Recommandation** : requêtes paramétrées + hash (déjà appliqué en mode secure).
+  - username : `x' OR 1=1 -- `
+  - password : `x`
+- **Ce que j’observe** : je suis redirigé vers `/dashboard` sans avoir le vrai mdp.
+- **Impact (en mots simples)** : je peux rentrer comme si j’avais un compte.
+- **Fix attendu** : requête paramétrée + hash (mode `secure`).
 
-### VULN‑02 — Open Redirect (paramètre next)
-- **Référence checklist** : (2)
-- **Endpoint** : `/login?next=...`
-- **Impact** : phishing (redirection vers site externe après authentification).
-- **PoC** :
-  1) ouvrir `/login?next=https://example.com`
-  2) se connecter
-  3) observer la redirection externe
-- **Recommandation** : autoriser uniquement des chemins relatifs (déjà appliqué en secure).
+### 2.2 Open redirect (phishing)
+- **Je l’ai trouvé comment** : j’ai vu le paramètre `next` au login.
+- **Où** : `/login?next=...` (mode `vuln`)
+- **PoC** : ouvrir `/login?next=https://example.com`, se connecter, et regarder la redirection.
+- **Impact** : après login, on peut envoyer la victime ailleurs (phishing).
+- **Fix attendu** : accepter uniquement un chemin interne (mode `secure`).
 
-### VULN‑03 — XSS réfléchie (`/search`)
-- **Référence checklist** : (6)
-- **Endpoint** : `GET /search?q=...`
-- **Impact** : exécution JS à l’ouverture d’un lien (attaque par partage d’URL).
+### 2.3 XSS réfléchie sur `/search`
+- **Je l’ai trouvé comment** : page de recherche = souvent reflet de ce qu’on tape.
+- **Où** : `GET /search?q=...` (mode `vuln`)
 - **PoC** : `/search?q=<img src=x onerror=alert(1)>`
-- **Recommandation** : échapper la sortie + CSP (secure).
+- **Impact** : exécution JS juste en ouvrant le lien.
+- **Fix attendu** : échapper la sortie + CSP (mode `secure`).
 
-### VULN‑04 — XSS stockée (notes agenda)
-- **Référence checklist** : (4)
-- **Endpoint** : `POST /agenda` puis `GET /agenda`
-- **Impact** : exécution JS persistante (vol de session si cookies accessibles, actions à la place de la victime, etc.).
-- **PoC** (dans une note) :
+### 2.4 XSS stockée sur les notes (`/agenda`)
+- **Je l’ai trouvé comment** : formulaire “notes” → je poste du HTML et je recharge la page.
+- **Où** : `POST /agenda` puis `GET /agenda` (mode `vuln`)
+- **PoC** :
   ```html
   <img src=x onerror=alert(1)>
   ```
-- **Recommandation** : ne jamais rendre “safe” du contenu utilisateur ; conserver l’échappement.
+- **Impact** : ça s’exécute à chaque fois qu’on ouvre l’agenda.
+- **Fix attendu** : ne jamais rendre “safe” un input utilisateur (mode `secure`).
 
-### VULN‑05 — XSS stockée (bio profil)
-- **Référence checklist** : (5)
-- **Endpoint** : `POST /profile` puis `GET /profile`
-- **Impact** : exécution JS persistante sur le profil.
+### 2.5 XSS stockée sur la bio (`/profile`)
+- **Je l’ai trouvé comment** : champ “bio” → je tente une balise simple.
+- **Où** : `POST /profile` puis `GET /profile` (mode `vuln`)
 - **PoC** :
   ```html
   <svg onload=alert(1)>
   ```
-- **Recommandation** : échappement strict + validation longueur.
+- **Impact** : exécution persistante sur la page profil.
+- **Fix attendu** : échappement + validation longueur (mode `secure`).
 
-### VULN‑06 — IDOR (lecture messages par ID)
-- **Référence checklist** : (13)
-- **Endpoint** : `GET /messages/<id>`
-- **Impact** : lecture de données d’un autre utilisateur si l’attaquant devine un ID existant.
-- **PoC** :
-  1) se connecter
-  2) ouvrir `/messages/1`
-  3) remplacer l’ID dans l’URL (`/messages/2`, `/messages/3`, …)
-  4) constater l’accès à un message non destiné à l’utilisateur courant
-- **Recommandation** : filtrer par `user_id` (secure).
+### 2.6 IDOR sur les messages (`/messages/<id>`)
+- **Je l’ai trouvé comment** : l’URL a un ID numérique, donc j’incrémente.
+- **Où** : `GET /messages/<id>` (mode `vuln`)
+- **PoC** : je teste `/messages/1`, puis `/messages/2`, etc.
+- **Impact** : je peux lire un message qui n’est pas à moi si l’ID existe.
+- **Fix attendu** : filtrer avec `AND user_id = ?` (mode `secure`).
 
-### VULN‑07 — CSRF (actions POST)
-- **Référence checklist** : (17)
-- **Endpoints** : `POST /agenda`, `POST /profile`, `POST /logout`
-- **Impact** : actions déclenchées à l’insu de l’utilisateur (si session active).
-- **PoC** : envoyer un POST sans token (curl / page HTML externe) et observer que la requête passe en `vuln`.
-- **Recommandation** : token CSRF obligatoire (secure).
+### 2.7 CSRF sur les POST
+- **Je l’ai trouvé comment** : je regarde si un token CSRF existe dans les formulaires.
+- **Où** : `POST /agenda`, `POST /profile`, `POST /logout` (mode `vuln`)
+- **PoC** : envoyer un POST sans token (curl / petit HTML externe) et constater que ça marche.
+- **Impact** : actions possibles “à l’insu” de l’utilisateur si sa session est active.
+- **Fix attendu** : token obligatoire (mode `secure`).
 
-### VULN‑08 — Exposition de données (UI + API)
-- **Références checklist** : (14), (15), (18), (19), (8)
-- **Endpoints** : `GET /admin/users`, `GET /api/users`
-- **Impact** : fuite d’informations (utilisateurs, rôles, champs sensibles selon mode).
-- **PoC** : ouvrir `/api/users` connecté ; ouvrir `/admin/users` si accessible.
-- **Recommandation** : contrôle d’accès strict + limiter les champs renvoyés (secure).
+### 2.8 Endpoint sensible `/api/users` (selon droits)
+- **Je l’ai trouvé comment** : j’ai testé des URLs classiques `/api/users`.
+- **Où** : `GET /api/users`
+- **PoC** : ouvrir l’URL connecté.
+- **Impact** : fuite de données (selon mode/champs).
+- **Fix attendu** : contrôle d’accès strict + limiter les champs (mode `secure`).
 
-## 4) Synthèse des risques
-### 4.1 Priorités
-1) **SQLi login** : accès complet à l’application.
-2) **XSS (stored/reflected)** : exécution de code côté client.
-3) **IDOR** : brèche de confidentialité.
-4) **CSRF** : actions non voulues.
-5) **Open redirect / data exposure** : phishing + fuite d’infos.
+## 3) Priorités (si je devais corriger en premier)
+Si je devais conseiller la Blue Team :
+1) SQLi login
+2) XSS stockée
+3) IDOR
+4) CSRF
+5) Open redirect + endpoints qui exposent trop d’infos
 
-## 5) Recommandations (actionnables)
-- Forcer `APP_MODE=secure` pour tout déploiement public.
-- `SECRET_KEY` fort et stable (rotation si fuite).
-- Contrôles d’accès “deny by default” (admin/API).
-- Validation stricte entrées + échappement sorties (pas de rendu “safe”).
-- Mettre un vrai rate-limit partagé (Redis) si déploiement multi‑instance.
-- Ajouter journalisation minimale des tentatives d’attaque (login, accès admin, erreurs 4xx/5xx).
-
-## 6) Annexes (preuves)
-- Liste complète : `docs/vulnerabilites.md`
-- Scénarios rapides : `docs/demo.md`
+## 4) Annexes
+- Checklist : `docs/vulnerabilites.md`
+- Démo rapide : `docs/demo.md`

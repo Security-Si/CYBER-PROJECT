@@ -1,104 +1,110 @@
-# Rapport Blue Team — Conception, sécurisation et remédiation
+# Rapport Blue Team — Conception, sécurisation et remédiation (1ère personne)
 
 Auteur (Blue Team) : **Tristan Hardouin**  
 Projet : **Cyber Challenge — Façade Moodle / SaaS** (SSI 2025–2026)  
+Âge / profil : **22 ans**, niveau débutant en sécurité web (mais motivé)  
 Équipe : Keis Aissaoui • Tristan Hardouin  
 À compléter : filière / école / année universitaire.
 
-## 0) Résumé exécutif
-L’objectif Blue Team est double :
-1) produire une application crédible (login + workspace) avec un mode **vulnérable** exploitable pour le challenge ;
-2) fournir un mode **sécurisé** (“secure”) qui corrige les failles, et démontrer que les attaques simples ne passent plus.
+## 0) Ce que j’ai fait (résumé)
+Dans ce projet, mon objectif côté Blue Team c’était de :
+- construire une application qui ressemble à une petite plateforme (login + “workspace”) ;
+- laisser un mode **vulnérable** pour que la Red Team puisse attaquer ;
+- puis proposer un mode **secure** où je corrige les failles et je montre que les attaques “simples” ne passent plus.
 
-Les vulnérabilités et scénarios d’attaque sont centralisés dans `docs/vulnerabilites.md`.
+Pour ne pas me perdre, je me suis appuyé sur la checklist `docs/vulnerabilites.md` (c’est notre liste de failles).
 
-## 1) Périmètre
+## 1) Périmètre (ce que je couvre)
 ### 1.1 Application
 - Backend : Flask (Python) + SQLite.
-- Front : templates HTML (Jinja2) + assets statiques.
-- Pages principales : `/dashboard`, `/courses`, `/agenda`, `/messages`, `/profile`, `/search`, `/api/users`, `/admin/users`.
+- Front : HTML (Jinja2) + assets statiques.
+- Pages / endpoints : `/login`, `/dashboard`, `/courses`, `/agenda`, `/messages`, `/profile`, `/search`, `/api/users`, `/admin/users`.
 - Deux modes :
-  - `APP_MODE=vuln` : surface d’attaque volontairement plus large.
-  - `APP_MODE=secure` : contre‑mesures activées.
+  - `APP_MODE=vuln`
+  - `APP_MODE=secure`
 
-### 1.2 Hors périmètre
-- Intégration de paiement réelle (Stripe) : non implémentée.
-- MFA/SSO, gestion fine des logs, SIEM : non implémentés.
-- Déploiement “prod durable” avec DB persistante : non couvert si serverless/SQLite éphémère.
+### 1.2 Ce que je ne couvre pas
+Je reste sur un projet pédagogique, donc :
+- pas d’intégration Stripe réelle (billing = démo) ;
+- pas de MFA/SSO ;
+- pas de monitoring avancé (SIEM etc.) ;
+- pas de base “prod” persistante si on déploie en serverless avec SQLite.
 
-## 2) Architecture & choix techniques
-### 2.1 Choix
-- **Flask** : simplicité pour routes + sessions + templates.
-- **SQLite** : base légère, adaptée au prototype (seed via script).
-- **Deux modes** : utile pour démontrer attaque/défense sur la même base de code.
+## 2) Choix techniques (expliqués simplement)
+J’ai gardé des choix simples, parce que le but c’est la compréhension :
+- Flask : je trouve ça clair pour lire les routes et comprendre les failles.
+- SQLite : facile à lancer et à seed, pratique en projet.
+- Un script d’init DB : `scripts/init_db.py` pour avoir toujours les mêmes données.
+- Deux modes : je peux comparer “avant/après” sans changer de projet.
 
-### 2.2 Données
-La base contient (simplifié) : `users`, `courses`, `enrollments`, `announcements`, `messages`, `agenda_items`, `notes`.
-Les comptes de démonstration sont initialisés via `scripts/init_db.py`.
+## 3) Stratégie de défense (mode secure)
+Quand je passe en `secure`, je pars du principe : “je corrige le plus important d’abord”.
 
-## 3) Stratégie sécurité (mode secure)
-### 3.1 Objectif
-Réduire les risques majeurs “web classiques” : injection, XSS, CSRF, accès non autorisé, mauvaise gestion de session, exposition de données.
+### 3.1 Objectifs (ce que je veux empêcher)
+- injection SQL sur le login ;
+- XSS (stockée + réfléchie) ;
+- CSRF sur les formulaires ;
+- lecture de données d’autres utilisateurs (IDOR) ;
+- redirections externes (open redirect) ;
+- fuite d’infos sur l’API / l’admin ;
+- brute-force sur le login.
 
-### 3.2 Mesures mises en place
-- **SQL paramétré** sur l’authentification.
-- **Hash de mots de passe** + vérification via `werkzeug.security`.
-- **CSRF** : token obligatoire sur méthodes d’écriture (POST/PUT/PATCH/DELETE).
-- **Anti brute‑force** : rate‑limit basique sur `/login` (retour 429).
-- **Anti open‑redirect** : `next` restreint à un chemin local (pas de domaine externe).
-- **Durcissement session** : `HttpOnly`, `SameSite=Lax` (selon mode).
-- **Headers de sécurité** : CSP, X-Frame-Options, nosniff, policies (défense en profondeur).
-- **Contrôle d’accès** :
-  - IDOR messages corrigé (filtrage par `user_id` en secure).
-  - routes admin/api restreintes au rôle `teacher` en secure.
+### 3.2 Contre‑mesures que j’active en `secure`
+Je liste ici ce que j’ai mis (ou ce que le mode secure fait) :
+- **Requêtes paramétrées** au login (plus de concat SQL).
+- **Hash de mot de passe** + vérification (au lieu du mot de passe en clair).
+- **CSRF token** obligatoire sur les requêtes d’écriture.
+- **Rate‑limit** basique sur `/login` (429 après trop d’essais).
+- **Anti open‑redirect** : `next` doit être un chemin interne.
+- **Durcissement cookies de session** : `HttpOnly` + `SameSite`.
+- **Headers sécurité** : CSP, X-Frame-Options, nosniff, etc.
+- **Contrôle d’accès** : IDOR corrigée sur les messages, admin/API restreints au rôle `teacher`.
 
-## 4) Vulnérabilités gérées (mapping vers la checklist)
-Référence : `docs/vulnerabilites.md`.
+## 4) Comment je relie les failles à ma checklist
+Pour que ce soit clair, je mappe directement la checklist `docs/vulnerabilites.md` :
 
-### 4.1 Injections & redirections
-- **SQLi login (1)** : corrigé par requêtes paramétrées + hash.
-- **Open redirect (2)** : corrigé par validation stricte de `next`.
+### A) Injections & redirections
+- (1) SQLi login : corrigée en `secure` (requête paramétrée).
+- (2) Open redirect : corrigée en `secure` (validation de `next`).
 
-### 4.2 XSS
-- **XSS stockée notes (4)** : en secure, sorties échappées.
-- **XSS stockée bio (5)** : en secure, sorties échappées.
-- **XSS réfléchie search (6)** : en secure, sorties échappées.
-- **CSP/headers (7/21)** : ajoutés en secure pour limiter l’impact résiduel.
+### B) XSS
+- (4) XSS stockée notes : en `secure` le contenu est échappé.
+- (5) XSS stockée bio : en `secure` le contenu est échappé.
+- (6) XSS réfléchie search : en `secure` le contenu est échappé.
+- (7)/(20) headers/CSP : présents en `secure` (défense en profondeur).
 
-### 4.3 Auth / session
-- **Rate‑limit (10)** : activé en secure.
-- **Rotation session (11)** : `session.clear()` au login en secure.
-- **Cookies (12)** : durcis en secure.
+### C) Auth & sessions
+- (10) brute-force : rate‑limit en `secure`.
+- (11) session : je nettoie la session au login en `secure`.
+- (12) cookies : plus stricts en `secure`.
 
-### 4.4 Contrôles d’accès
-- **IDOR messages (13)** : corrigé en secure (`AND user_id = ?`).
-- **Admin/API (14/15/18/19)** : restriction rôle `teacher` en secure + réduction des champs API.
+### D) Access control
+- (13) IDOR messages : en `secure` je filtre par `user_id`.
+- (14)/(15)/(18)/(19) admin + API : en `secure` je limite l’accès et je réduis les infos renvoyées.
 
-## 5) Validation (tests & scénarios)
+## 5) Comment j’ai validé (en tant que débutant)
+Je n’ai pas fait un pentest “pro”, mais j’ai fait du concret :
+
 ### 5.1 Tests automatisés
-Des tests vérifient le différentiel `vuln` vs `secure` :
-- bypass login en `vuln` ;
-- open redirect neutralisé en `secure` ;
-- XSS stockée (vuln) vs échappement (secure) ;
-- présence landing publique (si applicable).
+J’ai utilisé les tests `pytest` pour vérifier que :
+- une attaque passe en `vuln`,
+- et qu’elle ne passe plus en `secure`.
 
-### 5.2 Tests manuels (checklist)
-Se référer à `docs/demo.md` + `docs/vulnerabilites.md` pour rejouer :
-- SQLi login ;
-- XSS (reflected/stored) ;
-- IDOR `/messages/<id>` ;
-- CSRF sans token.
+### 5.2 Tests manuels
+Je rejoue les scénarios décrits dans :
+- `docs/demo.md`
+- `docs/vulnerabilites.md`
 
-## 6) Remédiation post‑challenge (process)
-Après réception du rapport Red Team :
-1) reproduire les PoC en environnement local ;
-2) corriger au plus proche de la cause (validation, échappement, contrôle d’accès) ;
-3) retester (manuel + automatisé) ;
-4) documenter : scénario, fix, risques résiduels.
+Exemples :
+- SQLi sur `/login` ;
+- XSS sur `/search`, `/agenda`, `/profile` ;
+- IDOR sur `/messages/<id>` ;
+- CSRF en envoyant un POST sans token en `vuln`.
 
-## 7) Limites & pistes d’amélioration
-- **HTTPS** : déployer derrière reverse proxy (Caddy/Nginx) + HSTS en prod.
-- **Rate‑limit robuste** : stockage partagé (Redis) + verrouillage par compte.
-- **Gestion secrets** : `SECRET_KEY` obligatoire et rotation.
-- **Observabilité** : logs structurés + alerting (tentatives d’attaque).
-- **CSP renforcée** : nonces/strict-dynamic si ajout de scripts.
+## 6) Ce que je ferais pour aller “plus prod”
+Si je devais rendre ça vraiment déployable :
+- mettre une DB externe (Postgres) au lieu de SQLite serverless ;
+- ajouter un vrai rate-limit partagé (Redis) ;
+- sécuriser la gestion des secrets (`SECRET_KEY` obligatoire, rotation) ;
+- logs d’audit minimal sur login/admin ;
+- CSP plus stricte si on ajoute des scripts externes.
