@@ -108,3 +108,24 @@ Si je devais rendre ça vraiment déployable :
 - sécuriser la gestion des secrets (`SECRET_KEY` obligatoire, rotation) ;
 - logs d’audit minimal sur login/admin ;
 - CSP plus stricte si on ajoute des scripts externes.
+
+## 7) Réponse au rapport Red Team (11 vulnérabilités)
+Le rapport Red Team indique 11 vulnérabilités identifiées en `APP_MODE=vuln`. Pour moi, l’intérêt pédagogique c’est :
+- **en `vuln`** : on peut reproduire facilement les attaques ;
+- **en `secure`** : on montre que les mêmes PoC échouent.
+
+### 7.1 Liste des points à traiter en priorité
+De mon point de vue Blue Team (débutant), je priorise comme ça :
+1) **SQLi login** (accès total)
+2) **XSS stockées** (persistantes)
+3) **IDOR** (confidentialité)
+4) **CSRF** (actions à l’insu)
+5) **Endpoints admin/api** (exposition de données)
+6) **Open redirect** (phishing)
+7) **Bruteforce** (risque sur auth)
+
+### 7.2 Vérification “avant/après”
+Je valide avec la même logique :
+- je relance en `vuln` → PoC passe ;
+- je relance en `secure` → PoC échoue ;
+- je note le résultat dans `docs/demo.md` / tests.

@@ -6,7 +6,12 @@ Projet : **Cyber Challenge — Façade Moodle / SaaS** (SSI 2025–2026)
 Équipe : Keis Aissaoui • Tristan Hardouin  
 À compléter : filière / école / année universitaire.
 
-## 0) Comment j’ai abordé le test (en mode étudiant)
+## 0) Résumé (ce que j’ai trouvé)
+Sur le mode `APP_MODE=vuln`, j’ai réussi à identifier **11 vulnérabilités** (simples à moyennes), dont plusieurs exploitables immédiatement : SQLi sur le login, XSS (stockée + réfléchie), IDOR sur les messages, CSRF, open redirect et exposition de données via pages/API.
+
+Je détaille ci‑dessous comment je les ai trouvées “de l’extérieur”, avec des PoC reproductibles.
+
+## 1) Comment j’ai abordé le test (en mode étudiant)
 Je ne suis pas pentester pro, donc j’ai fait “simple mais efficace” :
 - je navigue comme un utilisateur normal ;
 - j’ouvre DevTools (Network / Storage) ;
@@ -15,7 +20,7 @@ Je ne suis pas pentester pro, donc j’ai fait “simple mais efficace” :
 
 Je me suis basé sur `docs/vulnerabilites.md` pour avoir une liste claire des failles à chercher.
 
-## 1) Reconnaissance (ce que j’ai vu rapidement)
+## 2) Reconnaissance (ce que j’ai vu rapidement)
 ### 1.1 Pages visibles
 Je vois surtout :
 - `/login` (formulaire),
@@ -29,10 +34,10 @@ Ce que je vérifie direct :
 - Est‑ce qu’il y a un paramètre `next` au login (souvent open redirect) ?
 - Est‑ce qu’il y a des endpoints admin/api devinables (`/admin`, `/api`) ?
 
-## 2) Vulnérabilités que j’ai réussies à exploiter (PoC)
+## 3) Vulnérabilités trouvées (11) — détails & PoC
 > Tous les PoC ci‑dessous sont pour l’app de démo uniquement.
 
-### 2.1 SQLi login (bypass)
+### V1 — SQLi login (bypass)
 - **Je l’ai trouvé comment** : sur un login je tente des strings SQL classiques.
 - **Où** : `POST /login` (mode `vuln`)
 - **PoC** :
@@ -42,21 +47,21 @@ Ce que je vérifie direct :
 - **Impact (en mots simples)** : je peux rentrer comme si j’avais un compte.
 - **Fix attendu** : requête paramétrée + hash (mode `secure`).
 
-### 2.2 Open redirect (phishing)
+### V2 — Open redirect (phishing)
 - **Je l’ai trouvé comment** : j’ai vu le paramètre `next` au login.
 - **Où** : `/login?next=...` (mode `vuln`)
 - **PoC** : ouvrir `/login?next=https://example.com`, se connecter, et regarder la redirection.
 - **Impact** : après login, on peut envoyer la victime ailleurs (phishing).
 - **Fix attendu** : accepter uniquement un chemin interne (mode `secure`).
 
-### 2.3 XSS réfléchie sur `/search`
+### V3 — XSS réfléchie sur `/search`
 - **Je l’ai trouvé comment** : page de recherche = souvent reflet de ce qu’on tape.
 - **Où** : `GET /search?q=...` (mode `vuln`)
 - **PoC** : `/search?q=<img src=x onerror=alert(1)>`
 - **Impact** : exécution JS juste en ouvrant le lien.
 - **Fix attendu** : échapper la sortie + CSP (mode `secure`).
 
-### 2.4 XSS stockée sur les notes (`/agenda`)
+### V4 — XSS stockée sur les notes (`/agenda`)
 - **Je l’ai trouvé comment** : formulaire “notes” → je poste du HTML et je recharge la page.
 - **Où** : `POST /agenda` puis `GET /agenda` (mode `vuln`)
 - **PoC** :
@@ -66,7 +71,7 @@ Ce que je vérifie direct :
 - **Impact** : ça s’exécute à chaque fois qu’on ouvre l’agenda.
 - **Fix attendu** : ne jamais rendre “safe” un input utilisateur (mode `secure`).
 
-### 2.5 XSS stockée sur la bio (`/profile`)
+### V5 — XSS stockée sur la bio (`/profile`)
 - **Je l’ai trouvé comment** : champ “bio” → je tente une balise simple.
 - **Où** : `POST /profile` puis `GET /profile` (mode `vuln`)
 - **PoC** :
@@ -76,28 +81,49 @@ Ce que je vérifie direct :
 - **Impact** : exécution persistante sur la page profil.
 - **Fix attendu** : échappement + validation longueur (mode `secure`).
 
-### 2.6 IDOR sur les messages (`/messages/<id>`)
+### V6 — IDOR sur les messages (`/messages/<id>`)
 - **Je l’ai trouvé comment** : l’URL a un ID numérique, donc j’incrémente.
 - **Où** : `GET /messages/<id>` (mode `vuln`)
 - **PoC** : je teste `/messages/1`, puis `/messages/2`, etc.
 - **Impact** : je peux lire un message qui n’est pas à moi si l’ID existe.
 - **Fix attendu** : filtrer avec `AND user_id = ?` (mode `secure`).
 
-### 2.7 CSRF sur les POST
+### V7 — CSRF sur les POST
 - **Je l’ai trouvé comment** : je regarde si un token CSRF existe dans les formulaires.
 - **Où** : `POST /agenda`, `POST /profile`, `POST /logout` (mode `vuln`)
 - **PoC** : envoyer un POST sans token (curl / petit HTML externe) et constater que ça marche.
 - **Impact** : actions possibles “à l’insu” de l’utilisateur si sa session est active.
 - **Fix attendu** : token obligatoire (mode `secure`).
 
-### 2.8 Endpoint sensible `/api/users` (selon droits)
+### V8 — Exposition de données via `/api/users` (endpoint JSON)
 - **Je l’ai trouvé comment** : j’ai testé des URLs classiques `/api/users`.
 - **Où** : `GET /api/users`
 - **PoC** : ouvrir l’URL connecté.
-- **Impact** : fuite de données (selon mode/champs).
+- **Impact** : fuite de données en JSON (utilisateurs/roles + parfois champs sensibles en `vuln`).
 - **Fix attendu** : contrôle d’accès strict + limiter les champs (mode `secure`).
 
-## 3) Priorités (si je devais corriger en premier)
+### V9 — Contrôle d’accès faible sur `/admin/users`
+- **Je l’ai trouvé comment** : j’ai essayé des URLs évidentes `/admin/users`.
+- **Où** : `GET /admin/users` (mode `vuln`)
+- **PoC** : se connecter puis ouvrir `/admin/users`.
+- **Impact** : exposition d’informations internes (liste utilisateurs, rôles…).
+- **Fix attendu** : réserver au rôle admin/teacher (mode `secure`).
+
+### V10 — Exposition de mots de passe de test (via UI admin)
+- **Je l’ai trouvé comment** : sur `/admin/users`, je regarde si des champs sensibles apparaissent.
+- **Où** : `/admin/users` (mode `vuln`)
+- **PoC** : observer l’affichage d’un champ type `password_plain`.
+- **Impact** : fuite directe de credentials de test.
+- **Fix attendu** : ne jamais exposer ce champ ; le retirer/masquer (mode `secure`).
+
+### V11 — Bruteforce possible (absence de rate‑limit en `vuln`)
+- **Je l’ai trouvé comment** : je fais plusieurs tentatives de login en boucle.
+- **Où** : `POST /login` (mode `vuln`)
+- **PoC** : enchaîner des logins invalides rapidement et constater l’absence de blocage.
+- **Impact** : attaque par force brute / dictionnaire facilitée.
+- **Fix attendu** : rate‑limit / verrouillage temporaire (mode `secure`).
+
+## 4) Priorités (si je devais corriger en premier)
 Si je devais conseiller la Blue Team :
 1) SQLi login
 2) XSS stockée
@@ -105,6 +131,14 @@ Si je devais conseiller la Blue Team :
 4) CSRF
 5) Open redirect + endpoints qui exposent trop d’infos
 
-## 4) Annexes
+## 5) Ce que je recommande (simple et concret)
+- Mettre `APP_MODE=secure` pour tout déploiement public.
+- Garder `SECRET_KEY` fort et stable en prod.
+- Bloquer `/admin/users` et `/api/users` (RBAC) + réduire les champs renvoyés.
+- Échapper toutes les sorties utilisateur (et éviter tout rendu “safe”).
+- CSRF sur toutes les actions d’écriture.
+- Rate‑limit robuste (idéalement partagé) sur login.
+
+## 6) Annexes
 - Checklist : `docs/vulnerabilites.md`
 - Démo rapide : `docs/demo.md`
