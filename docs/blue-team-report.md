@@ -1,10 +1,23 @@
-# Rapport Blue Team — Conception, sécurisation et remédiation (1ère personne)
+# Rapport Blue Team — Conception, sécurisation et remédiation (mode `APP_MODE=secure`)
 
 Auteur (Blue Team) : **Tristan Hardouin**  
 Projet : **Cyber Challenge — Façade Moodle / SaaS** (SSI 2025–2026)  
 Âge / profil : **22 ans**, niveau débutant en sécurité web (mais motivé)  
 Équipe : Keis Aissaoui • Tristan Hardouin  
 À compléter : filière / école / année universitaire.
+
+---
+
+## Table des matières
+1. Résumé & périmètre  
+2. Choix techniques & architecture  
+3. Stratégie de sécurité (mode secure)  
+4. Mapping failles → contre‑mesures  
+5. Validation (tests)  
+6. Réponse au rapport Red Team (11 vulnérabilités)  
+7. Limites & améliorations  
+
+---
 
 ## 0) Ce que j’ai fait (résumé)
 Dans ce projet, mon objectif côté Blue Team c’était de :
@@ -13,6 +26,8 @@ Dans ce projet, mon objectif côté Blue Team c’était de :
 - puis proposer un mode **secure** où je corrige les failles et je montre que les attaques “simples” ne passent plus.
 
 Pour ne pas me perdre, je me suis appuyé sur la checklist `docs/vulnerabilites.md` (c’est notre liste de failles).
+
+---
 
 ## 1) Périmètre (ce que je couvre)
 ### 1.1 Application
@@ -30,6 +45,8 @@ Je reste sur un projet pédagogique, donc :
 - pas de monitoring avancé (SIEM etc.) ;
 - pas de base “prod” persistante si on déploie en serverless avec SQLite.
 
+---
+
 ## 2) Choix techniques (expliqués simplement)
 J’ai gardé des choix simples, parce que le but c’est la compréhension :
 - Flask : je trouve ça clair pour lire les routes et comprendre les failles.
@@ -37,7 +54,9 @@ J’ai gardé des choix simples, parce que le but c’est la compréhension :
 - Un script d’init DB : `scripts/init_db.py` pour avoir toujours les mêmes données.
 - Deux modes : je peux comparer “avant/après” sans changer de projet.
 
-## 3) Stratégie de défense (mode secure)
+---
+
+## 3) Stratégie de défense (mode `secure`)
 Quand je passe en `secure`, je pars du principe : “je corrige le plus important d’abord”.
 
 ### 3.1 Objectifs (ce que je veux empêcher)
@@ -60,7 +79,9 @@ Je liste ici ce que j’ai mis (ou ce que le mode secure fait) :
 - **Headers sécurité** : CSP, X-Frame-Options, nosniff, etc.
 - **Contrôle d’accès** : IDOR corrigée sur les messages, admin/API restreints au rôle `teacher`.
 
-## 4) Comment je relie les failles à ma checklist
+---
+
+## 4) Mapping failles → contre‑mesures
 Pour que ce soit clair, je mappe directement la checklist `docs/vulnerabilites.md` :
 
 ### A) Injections & redirections
@@ -82,7 +103,9 @@ Pour que ce soit clair, je mappe directement la checklist `docs/vulnerabilites.m
 - (13) IDOR messages : en `secure` je filtre par `user_id`.
 - (14)/(15)/(18)/(19) admin + API : en `secure` je limite l’accès et je réduis les infos renvoyées.
 
-## 5) Comment j’ai validé (en tant que débutant)
+---
+
+## 5) Validation (en tant que débutant)
 Je n’ai pas fait un pentest “pro”, mais j’ai fait du concret :
 
 ### 5.1 Tests automatisés
@@ -101,6 +124,8 @@ Exemples :
 - IDOR sur `/messages/<id>` ;
 - CSRF en envoyant un POST sans token en `vuln`.
 
+---
+
 ## 6) Ce que je ferais pour aller “plus prod”
 Si je devais rendre ça vraiment déployable :
 - mettre une DB externe (Postgres) au lieu de SQLite serverless ;
@@ -108,6 +133,8 @@ Si je devais rendre ça vraiment déployable :
 - sécuriser la gestion des secrets (`SECRET_KEY` obligatoire, rotation) ;
 - logs d’audit minimal sur login/admin ;
 - CSP plus stricte si on ajoute des scripts externes.
+
+---
 
 ## 7) Réponse au rapport Red Team (11 vulnérabilités)
 Le rapport Red Team indique 11 vulnérabilités identifiées en `APP_MODE=vuln`. Pour moi, l’intérêt pédagogique c’est :
